@@ -30,4 +30,4 @@ def determinant(matrix):
         sub_matrix = [row[:j] + row[j+1:] for row in matrix[1:]]
         answer += sign * matrix[0][j] * determinant(sub_matrix)
     return answer
-    
+
