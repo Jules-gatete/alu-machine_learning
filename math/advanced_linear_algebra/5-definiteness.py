@@ -28,3 +28,4 @@ def definiteness(matrix):
         return "Negative semi-definite"
 
     return "Indefinite"
+    

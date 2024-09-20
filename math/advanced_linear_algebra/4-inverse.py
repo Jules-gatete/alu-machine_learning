@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-the inverse of a matrix
+calculates the inverse of a matrix
 """
 
 
@@ -137,3 +137,4 @@ def inverse(matrix):
         for j in range(size):
             adjugate_matrix[i][j] /= det
     return adjugate_matrix
+    
