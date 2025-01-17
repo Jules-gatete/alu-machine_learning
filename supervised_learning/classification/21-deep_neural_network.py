@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
-"""creating a deep neural network"""
-
+"""Creating a deep neural network"""
 
 import numpy as np
 
 
 class DeepNeuralNetwork:
-    """deep nn"""
+    """Deep Neural Network"""
     def __init__(self, nx, layers):
         if not isinstance(nx, int):
             raise TypeError("nx must be an integer")
         if nx < 1:
             raise ValueError("nx must be a positive integer")
-        if not isinstance(layers, list):
-            raise TypeError("layers must be a list of positive integers")
-        if len(layers) < 1:
+        if not isinstance(layers, list) or not all(isinstance(l, int) and l > 0 for l in layers):
             raise TypeError("layers must be a list of positive integers")
 
         self.__L = len(layers)
@@ -22,78 +19,66 @@ class DeepNeuralNetwork:
         self.__weights = {}
 
         for i in range(self.__L):
-            if not isinstance(layers[i], int) or layers[i] < 1:
-                raise TypeError('layers must be a list of positive integers')
-
             if i == 0:
-                # He-et-al initialization
-                self.__weights['W' + str(i + 1)] = np.random.randn(
-                    layers[i], nx) * np.sqrt(2 / nx)
+                self.__weights['W1'] = np.random.randn(layers[0], nx) * np.sqrt(2 / nx)
             else:
-                # He-et-al initialization
-                self.__weights['W' + str(i + 1)] = np.random.randn(
-                    layers[i], layers[i - 1]) * np.sqrt(2 / layers[i - 1])
-
-            # Zero initialization
-            self.__weights['b' + str(i + 1)] = np.zeros((layers[i], 1))
+                self.__weights[f'W{i + 1}'] = np.random.randn(layers[i], layers[i - 1]) * np.sqrt(2 / layers[i - 1])
+            self.__weights[f'b{i + 1}'] = np.zeros((layers[i], 1))
 
     @property
     def L(self):
-        """number of layers in the neural network"""
+        """Number of layers in the neural network"""
         return self.__L
 
     @property
     def cache(self):
-        """intermediary values of the network"""
+        """Intermediary values of the network"""
         return self.__cache
 
     @property
     def weights(self):
-        """hold all weights"""
+        """Holds all weights and biases"""
         return self.__weights
 
     def forward_prop(self, X):
-        """foward_prop of nn"""
-        self.cache["A0"] = X
-        for i in range(1, self.L+1):
-            W = self.weights['W'+str(i)]
-            b = self.weights['b'+str(i)]
-            A = self.cache['A'+str(i - 1)]
-            z = np.matmul(W, A) + b
-            sigmoid = 1 / (1 + np.exp(-z))
-            self.cache["A"+str(i)] = sigmoid
-        return self.cache["A"+str(i)], self.cache
+        """Forward propagation"""
+        self.__cache["A0"] = X
+        for i in range(1, self.L + 1):
+            W = self.__weights[f'W{i}']
+            b = self.__weights[f'b{i}']
+            A_prev = self.__cache[f'A{i - 1}']
+            Z = np.matmul(W, A_prev) + b
+            self.__cache[f'A{i}'] = 1 / (1 + np.exp(-Z))
+        return self.__cache[f'A{self.L}'], self.__cache
 
     def cost(self, Y, A):
-        """calculating cost"""
-        cost = - ((Y * np.log(A)) + (1 - Y) * np.log(1.0000001 - A))
-        mean_cost = np.mean(cost)
-        return mean_cost
+        """Calculate cost using cross-entropy loss"""
+        m = Y.shape[1]
+        return -np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)) / m
 
     def evaluate(self, X, Y):
-        """evaluate"""
-        predict = self.forward_prop(X)
-        output = self.cache.get("A" + str(self.L))
-        cost = self.cost(Y, output)
-        predict = np.where(output >= 0.5, 1, 0)
-        return (predict, cost)
+        """Evaluate the network's predictions"""
+        A_final, _ = self.forward_prop(X)
+        predictions = np.where(A_final >= 0.5, 1, 0)
+        cost = self.cost(Y, A_final)
+        return predictions, cost
 
     def gradient_descent(self, Y, cache, alpha=0.05):
-        """grad_descent"""
+        """Gradient descent for updating weights and biases"""
         m = Y.shape[1]
+        A_final = cache[f"A{self.__L}"]
+        da = A_final - Y  # For the last layer
 
         for i in range(self.L, 0, -1):
+            A_prev = cache[f"A{i - 1}"]
+            W = self.__weights[f"W{i}"]
+            b = self.__weights[f"b{i}"]
 
-            A_prev = cache["A" + str(i - 1)]
-            A = cache["A" + str(i)]
-            W = self.__weights["W" + str(i)]
-
-            if i == self.__L:
-                dz = A - Y
-            else:
-                dz = da * (A * (1 - A))
-            db = dz.mean(axis=1, keepdims=True)
+            dz = da
+            db = np.sum(dz, axis=1, keepdims=True) / m
             dw = np.matmul(dz, A_prev.T) / m
-            da = np.matmul(W.T, dz)
-            self.__weights['W' + str(i)] -= (alpha * dw)
-            self.__weights['b' + str(i)] -= (alpha * db)
+            if i > 1:  # Backpropagate error
+                da = np.matmul(W.T, dz) * A_prev * (1 - A_prev)
+
+            self.__weights[f"W{i}"] -= alpha * dw
+            self.__weights[f"b{i}"] -= alpha * db
