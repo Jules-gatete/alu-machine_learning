@@ -48,7 +48,6 @@ class DeepNeuralNetwork:
             # Zero initialization
             self.__weights['b' + str(i + 1)] = np.zeros((layers[i], 1))
 
-    # add getter method
     @property
     def L(self):
         """ Return layers in the neural network"""
@@ -72,18 +71,14 @@ class DeepNeuralNetwork:
             shape (nx, m) = (featurs, no of examples)
         """
         self.cache["A0"] = X
-        # print(self.cache)
-        for i in range(1, self.L+1):
-            # extract values
-            W = self.weights['W'+str(i)]
-            b = self.weights['b'+str(i)]
-            A = self.cache['A'+str(i - 1)]
-            # do forward propagation
+        for i in range(1, self.L + 1):
+            W = self.weights['W' + str(i)]
+            b = self.weights['b' + str(i)]
+            A = self.cache['A' + str(i - 1)]
             z = np.matmul(W, A) + b
-            sigmoid = 1 / (1 + np.exp(-z))  # this is the output
-            # store output to the cache
-            self.cache["A"+str(i)] = sigmoid
-        return self.cache["A"+str(i)], self.cache
+            sigmoid = 1 / (1 + np.exp(-z))
+            self.cache["A" + str(i)] = sigmoid
+        return self.cache["A" + str(i)], self.cache
 
     def cost(self, Y, A):
         """ Calculate the cost of the Neural Network.
@@ -93,7 +88,7 @@ class DeepNeuralNetwork:
             A (numpy.array): predicted values of the neural network
 
         Returns:
-            _type_: _description_
+            float: cost
         """
         loss = -(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
         cost = np.mean(loss)
@@ -107,10 +102,9 @@ class DeepNeuralNetwork:
             Y (numpy.array): Actual values
 
         Returns:
-            prediction, cost: return predictions and costs
+            tuple: predictions, cost
         """
         self.forward_prop(X)
-        # get output of the neural network from the cache
         output = self.cache.get("A" + str(self.L))
         return np.where(output >= 0.5, 1, 0), self.cost(Y, output)
 
@@ -124,9 +118,8 @@ class DeepNeuralNetwork:
             alpha (float): learning rate
         """
         m = Y.shape[1]
-        
-        for i in range(self.L, 0, -1):
 
+        for i in range(self.L, 0, -1):
             A_prev = cache["A" + str(i - 1)]
             A = cache["A" + str(i)]
             W = self.__weights["W" + str(i)]
@@ -140,5 +133,3 @@ class DeepNeuralNetwork:
             da = np.matmul(W.T, dz)
             self.__weights['W' + str(i)] -= (alpha * dw)
             self.__weights['b' + str(i)] -= (alpha * db)
-
-            
