@@ -1,32 +1,21 @@
 #!/usr/bin/env python3
-""" Deep Neural Network
-"""
+"""creating a deep neural network"""
+
 
 import numpy as np
 
 
 class DeepNeuralNetwork:
-    """ Class that defines a deep neural network performing binary
-        classification.
-    """
-
+    """deep nn"""
     def __init__(self, nx, layers):
-        """ Instantiation function
-
-        Args:
-            nx (int): number of input features
-            layers (list): representing the number of nodes in each layer of
-                           the network
-        """
         if not isinstance(nx, int):
-            raise TypeError('nx must be an integer')
+            raise TypeError("nx must be an integer")
         if nx < 1:
-            raise ValueError('nx must be a positive integer')
-
+            raise ValueError("nx must be a positive integer")
         if not isinstance(layers, list):
-            raise TypeError('layers must be a list of positive integers')
+            raise TypeError("layers must be a list of positive integers")
         if len(layers) < 1:
-            raise TypeError('layers must be a list of positive integers')
+            raise TypeError("layers must be a list of positive integers")
 
         self.__L = len(layers)
         self.__cache = {}
@@ -37,94 +26,62 @@ class DeepNeuralNetwork:
                 raise TypeError('layers must be a list of positive integers')
 
             if i == 0:
-                # He et al. initialization
+                # He-et-al initialization
                 self.__weights['W' + str(i + 1)] = np.random.randn(
                     layers[i], nx) * np.sqrt(2 / nx)
             else:
-                # He et al. initialization
+                # He-et-al initialization
                 self.__weights['W' + str(i + 1)] = np.random.randn(
                     layers[i], layers[i - 1]) * np.sqrt(2 / layers[i - 1])
 
             # Zero initialization
             self.__weights['b' + str(i + 1)] = np.zeros((layers[i], 1))
 
-    # add getter method
     @property
     def L(self):
-        """ Return layers in the neural network"""
+        """number of layers in the neural network"""
         return self.__L
 
     @property
     def cache(self):
-        """ Return dictionary with intermediate values of the network"""
+        """intermediary values of the network"""
         return self.__cache
 
     @property
     def weights(self):
-        """Return weights and bias dictionary"""
+        """hold all weights"""
         return self.__weights
 
     def forward_prop(self, X):
-        """ Forward propagation
-
-        Args:
-            X (numpy.array): Input array with
-            shape (nx, m) = (featurs, no of examples)
-        """
+        """foward_prop of nn"""
         self.cache["A0"] = X
-        # print(self.cache)
         for i in range(1, self.L+1):
-            # extract values
             W = self.weights['W'+str(i)]
             b = self.weights['b'+str(i)]
             A = self.cache['A'+str(i - 1)]
-            # do forward propagation
             z = np.matmul(W, A) + b
-            sigmoid = 1 / (1 + np.exp(-z))  # this is the output
-            # store output to the cache
+            sigmoid = 1 / (1 + np.exp(-z))
             self.cache["A"+str(i)] = sigmoid
         return self.cache["A"+str(i)], self.cache
 
     def cost(self, Y, A):
-        """ Calculate the cost of the Neural Network.
-
-        Args:
-            Y (numpy.array): Actual values
-            A (numpy.array): predicted values of the neural network
-
-        Returns:
-            _type_: _description_
-        """
-        loss = -(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
-        cost = np.mean(loss)
-        return cost
+        """calculating cost"""
+        cost = - ((Y * np.log(A)) + (1 - Y) * np.log(1.0000001 - A))
+        mean_cost = np.mean(cost)
+        return mean_cost
 
     def evaluate(self, X, Y):
-        """ Evaluate the neural network
-
-        Args:
-            X (numpy.array): Input array
-            Y (numpy.array): Actual values
-
-        Returns:
-            prediction, cost: return predictions and costs
-        """
-        self.forward_prop(X)
-        # get output of the neural network from the cache
+        """evaluate"""
+        predict = self.forward_prop(X)
         output = self.cache.get("A" + str(self.L))
-        return np.where(output >= 0.5, 1, 0), self.cost(Y, output)
+        cost = self.cost(Y, output)
+        predict = np.where(output >= 0.5, 1, 0)
+        return (predict, cost)
 
     def gradient_descent(self, Y, cache, alpha=0.05):
-        """ Calculate one pass of gradient descent on the neural network
-
-        Args:
-            Y (numpy.array): Actual values
-            cache (dict): Dictionary containing all intermediary values of the
-                          network
-            alpha (float): learning rate
-        """
+        """grad_descent"""
         m = Y.shape[1]
-        
+
         for i in range(self.L, 0, -1):
 
             A_prev = cache["A" + str(i - 1)]
