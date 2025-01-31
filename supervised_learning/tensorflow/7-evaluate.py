@@ -18,7 +18,8 @@ def evaluate(X, Y, save_path):
         loss = tf.get_collection('loss')[0]
 
         feed_dict = {x: X, y: Y}
-        prediction, acc, cost = sess.run([y_pred, accuracy, loss],
-                                       feed_dict=feed_dict)
+        prediction, acc, cost = sess.run(
+            [y_pred, accuracy, loss],
+            feed_dict=feed_dict)
 
         return prediction, acc, cost
