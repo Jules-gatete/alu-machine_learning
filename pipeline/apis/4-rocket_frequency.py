@@ -6,7 +6,7 @@ import sys
 if __name__ == '__main__':
     """Fetches launch and rocket data from SpaceX API"""
     url = "https://api.spacexdata.com/v4/launches"
-    
+
     try:
         r = requests.get(url, timeout=10)  # Add timeout for reliability
         r.raise_for_status()  # Raises error for HTTP status codes >= 400
@@ -38,12 +38,17 @@ if __name__ == '__main__':
         sys.exit(1)
 
     try:
-        rocket_names = {r["id"]: r["name"] for r in rockets_response.json()}
+        rocket_names = {
+            r["id"]: r["name"] for r in rockets_response.json()
+        }
     except ValueError:
         print("Invalid JSON response for rocket data")
         sys.exit(1)
 
     # Sort and print the rocket names and their counts
-    for rocket_id, count in sorted(rocket_dict.items(), key=lambda x: x[1], reverse=True):
+    for rocket_id, count in sorted(
+        rocket_dict.items(), key=lambda x: x[1], reverse=True
+    ):
         rocket_name = rocket_names.get(rocket_id, "Unknown Rocket")
         print("{}: {}".format(rocket_name, count))
+
