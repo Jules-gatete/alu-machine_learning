@@ -2,30 +2,33 @@
 """Pipeline Api"""
 import requests
 
-
 if __name__ == '__main__':
-    """pipeline api"""
+    """Pipeline API"""
     url = "https://api.spacexdata.com/v4/launches"
     r = requests.get(url)
+
+    if r.status_code != 200:
+        print("Failed to fetch launch data")
+        exit(1)
 
     # Initialize an empty dictionary to count rockets
     rocket_dict = {}
 
     for launch in r.json():
         rocket_id = launch["rocket"]
-        if rocket_id in rocket_dict:
-            rocket_dict[rocket_id] += 1
-        else:
-            rocket_dict[rocket_id] = 1
+        rocket_dict[rocket_id] = rocket_dict.get(rocket_id, 0) + 1
 
-    # Define a specific order for rocket names
-    rocket_order = ["5e9d0d95eda69955f709d1eb",  # Falcon 9
-                    "5e9d0d95eda69974e44b38c5",  # Falcon Heavy
-                    "5e9d0d95eda69955f709d1ec"]  # Falcon 1
+    # Fetch all rocket names dynamically
+    rockets_url = "https://api.spacexdata.com/v4/rockets"
+    rockets_response = requests.get(rockets_url)
+
+    if rockets_response.status_code != 200:
+        print("Failed to fetch rocket data")
+        exit(1)
+
+    rocket_names = {r["id"]: r["name"] for r in rockets_response.json()}
 
     # Sort and print the rocket names and their counts
-    for key in rocket_order:
-        if key in rocket_dict:
-            rurl = "https://api.spacexdata.com/v4/rockets/" + key
-            req = requests.get(rurl)
-            print(req.json()["name"] + ": " + str(rocket_dict[key]))
+    for rocket_id, count in sorted(rocket_dict.items(), key=lambda x: x[1], reverse=True):
+        if rocket_id in rocket_names:
+            print(f"{rocket_names[rocket_id]}: {count}")
