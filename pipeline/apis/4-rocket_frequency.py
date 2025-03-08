@@ -11,7 +11,7 @@ if __name__ == '__main__':
         r = requests.get(url, timeout=10)  # Add timeout for reliability
         r.raise_for_status()  # Raises error for HTTP status codes >= 400
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching launch data: {e}")
+        print("Error fetching launch data: {}".format(e))
         sys.exit(1)
 
     # Initialize an empty dictionary to count rockets
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         rockets_response = requests.get(rockets_url, timeout=10)
         rockets_response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching rocket data: {e}")
+        print("Error fetching rocket data: {}".format(e))
         sys.exit(1)
 
     try:
@@ -46,4 +46,4 @@ if __name__ == '__main__':
     # Sort and print the rocket names and their counts
     for rocket_id, count in sorted(rocket_dict.items(), key=lambda x: x[1], reverse=True):
         rocket_name = rocket_names.get(rocket_id, "Unknown Rocket")
-        print(f"{rocket_name}: {count}")
+        print("{}: {}".format(rocket_name, count))
