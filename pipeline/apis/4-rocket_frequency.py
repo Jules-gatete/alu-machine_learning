@@ -46,4 +46,4 @@ if __name__ == '__main__':
     # Sort and print the rocket names and their counts
     for rocket_id, count in sorted(rocket_dict.items(), key=lambda x: x[1], reverse=True):
         rocket_name = rocket_names.get(rocket_id, "Unknown Rocket")
-        print("{}: {}".format(rocket_name, count))
+        print("{}: {}".format(rocket_name, count))  # Ensure this line is within 79 characters
