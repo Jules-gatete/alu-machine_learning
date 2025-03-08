@@ -51,4 +51,3 @@ if __name__ == '__main__':
     ):
         rocket_name = rocket_names.get(rocket_id, "Unknown Rocket")
         print("{}: {}".format(rocket_name, count))
-
