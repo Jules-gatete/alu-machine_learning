@@ -5,24 +5,44 @@ from pymongo import MongoClient
 
 if __name__ == '__main__':
     try:
-        client = MongoClient('mongodb://127.0.0.1:27017')
-        collection = client.logs.nginx
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['your_database']
+        collection = db['nginx']
 
-        # Total number of documents
-        total_logs = collection.count_documents({})
+        # Insert logs (example)
+        collection.insert_one({"method": "GET", "status_check": True})
 
-        methods = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-        method_counts = {method: collection.count_documents({"method": method}) for method in methods}
+        # Fetch logs
+        logs = list(collection.find())
 
-        # Count of status check
-        status_check_count = collection.count_documents({"method": "GET", "path": "/status"})
-
-        # Print output
-        print(f"{total_logs} logs")
-        print("Methods:")
-        for method in methods:
-            print(f"\tmethod {method}: {method_counts[method]}")
-        print(f"{status_check_count} status check")
+        # Process logs
+        process_logs(logs)
 
     except Exception as e:
         print(f"Error: {e}")
+
+def process_logs(logs):
+    method_counts = {
+        "GET": 0,
+        "POST": 0,
+        "PUT": 0,
+        "PATCH": 0,
+        "DELETE": 0
+    }
+    status_check_count = 0
+
+    for log in logs:
+        method = log.get("method")
+        if method in method_counts:
+            method_counts[method] += 1
+        if log.get("status_check"):
+            status_check_count += 1
+
+    total_logs = len(logs)
+    print(f"{total_logs} logs")
+    print("Methods:")
+    for method, count in method_counts.items():
+        print(f"method {method}: {count}")
+    print(f"{status_check_count} status check")
+
+    print("Logs being processed:", logs)
