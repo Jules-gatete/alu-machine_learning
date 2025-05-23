@@ -251,4 +251,4 @@ class NST:
     def variational_cost(generated_image):
         """Calculates the variational cost for the generated image"""
         return None
-        
+    
