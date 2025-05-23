@@ -39,3 +39,4 @@ def bi_rnn(bi_cell, X, h_0, h_t):
     H = np.concatenate((H_forward, H_backward), axis=-1)
     Y = bi_cell.output(H)
     return H, Y
+
