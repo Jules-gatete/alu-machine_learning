@@ -4,6 +4,7 @@ This module contains the BiRNN class.
 """
 import numpy as np
 
+
 def bi_rnn(bi_cell, X, h_0, h_t):
     """
     Performs forward propagation for a bidirectional RNN.
@@ -31,12 +32,12 @@ def bi_rnn(bi_cell, X, h_0, h_t):
     for step in range(t):
         h_prev = bi_cell.forward(h_prev, X[step])
         H_forward[step] = h_prev
-        
+
     h_next = h_t
     for step in reversed(range(t)):
         h_next = bi_cell.backward(h_next, X[step])
         H_backward[step] = h_next
+
     H = np.concatenate((H_forward, H_backward), axis=-1)
     Y = bi_cell.output(H)
     return H, Y
-
