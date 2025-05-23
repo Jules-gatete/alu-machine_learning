@@ -52,4 +52,4 @@ class BidirectionalCell:
         h_nxt = np.tanh(np.matmul(h_x, self.Whf) + self.bhf)
 
         return h_nxt
-        
+    

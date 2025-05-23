@@ -82,4 +82,4 @@ class LSTMCell:
         h_nxt = output_gt * np.tanh(c_nxt)
         y = self.softmax(np.matmul(h_nxt, self.Wy) + self.by)
         return h_nxt, c_nxt, y
-        
+    
