@@ -216,6 +216,5 @@ class NST:
         if not isinstance(generated_image, (tf.Tensor, tf.Variable)) or \
            generated_image.shape != shape:
             raise TypeError(
-                
+
                 "generated_image must be a tensor of shape {}".format(shape))
-               

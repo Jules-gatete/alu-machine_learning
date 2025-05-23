@@ -72,4 +72,3 @@ class GRUCell:
         h_nxt = h_nxt + (1 - update_gate) * h_prev
         y = self.softmax(np.matmul(h_nxt, self.Wy) + self.by)
         return h_nxt, y
-    

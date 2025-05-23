@@ -57,4 +57,3 @@ class RNNCell:
         h_nxt = np.tanh(np.matmul(summation, self.Wh) + self.bh)
         y = self.softmax(np.matmul(h_nxt, self.Wy) + self.by)
         return h_nxt, y
-    

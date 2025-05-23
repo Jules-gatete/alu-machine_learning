@@ -208,4 +208,3 @@ class NST:
            generated_image.shape != shape:
             raise TypeError(
                 "generated_image must be a tensor of shape {}".format(shape))
-               

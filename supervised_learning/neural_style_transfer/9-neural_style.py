@@ -256,4 +256,3 @@ class NST:
         generated_image = self.content_image
         cost = 0
         return generated_image, cost
-    
