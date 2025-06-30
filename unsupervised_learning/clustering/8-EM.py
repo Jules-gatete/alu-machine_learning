@@ -24,13 +24,13 @@ def expectation_maximization(X, k,
     tol: non-negative float containing tolerance of the log likelihood
     verbose: boolean that determines if output should be printed
     returns:
-        pi, m, S, g, l or None, None, None, None, None on failure
+        pi, m, S, g, log_like or None, None, None, None, None on failure
         - pi: numpy.ndarray (k,) containing the priors for each cluster
         - m: numpy.ndarray (k, d) containing centroid means for each cluster
         - S: numpy.ndarray (k, d, d) covariance matrices for each cluster
         - g: numpy.ndarray (k, n) containing the posterior
             probabilities for each data point in each cluster
-        - l: log likelihood of the model
+        - log_like: log likelihood of the model
     """
     if not isinstance(X, np.ndarray) or len(X.shape) != 2:
         return None, None, None, None, None
@@ -44,20 +44,24 @@ def expectation_maximization(X, k,
         return None, None, None, None, None
 
     pi, m, S = initialize(X, k)
-    g, l = expectation(X, pi, m, S)
-    prev_like = i = 0
+    g, log_like = expectation(X, pi, m, S)
+    prev_like = log_like
     msg = "Log Likelihood after {} iterations: {}"
 
-    for i in range(iterations):
-        if verbose and i % 10 == 0:
-            print(msg.format(i, total_log_like.round(5)))
+    if verbose:
+        print(msg.format(0, log_like.round(5)))
+
+    for i in range(1, iterations + 1):
         pi, m, S = maximization(X, g)
         g, total_log_like = expectation(X, pi, m, S)
+        if verbose and i % 10 == 0:
+            print(msg.format(i, total_log_like.round(5)))
         if abs(prev_like - total_log_like) <= tol:
             break
         prev_like = total_log_like
+        log_like = total_log_like
 
-    if verbose:
-        print(msg.format(i + 1, total_log_like.round(5)))
+    if verbose and (i % 10 != 0):
+        print(msg.format(i, total_log_like.round(5)))
 
     return pi, m, S, g, total_log_like

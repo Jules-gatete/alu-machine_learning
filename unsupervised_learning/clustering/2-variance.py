@@ -22,8 +22,14 @@ def variance(X, C):
     return:
         - var: total intra-cluster variance
     """
-    var = np.sum((X - C[:, np.newaxis])**2, axis=-1)
-    mean = np.sqrt(var)
-    mini = np.min(mean, axis=0)
-    var = np.sum(mini ** 2)
-    return np.sum(var)
+    if not (isinstance(X, np.ndarray) and isinstance(C, np.ndarray)):
+        return None
+    if len(X.shape) != 2 or len(C.shape) != 2 or X.shape[1] != C.shape[1]:
+        return None
+    # Compute squared distances from each point to each centroid
+    dists = np.linalg.norm(X - C[:, np.newaxis], axis=2)
+    # For each point, find the closest centroid
+    min_dists = np.min(dists, axis=0)
+    # Total variance is the sum of squared distances to closest centroid
+    var = np.sum(min_dists ** 2)
+    return var
